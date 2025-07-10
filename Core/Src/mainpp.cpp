@@ -65,6 +65,7 @@ geometry_msgs::TransformStamped odom_trans;
 tf::TransformBroadcaster broadcaster;
 
 char base_link[] = "/base_link";
+char base_footprint[] = "base_footprint"; // <<<【新增
 char odom[] = "/odom";
 
 
@@ -97,7 +98,7 @@ void loop(void)
     // 2. 填充并发布 odom -> base_link 的 TF 变换
     odom_trans.header.stamp = current_time;
     odom_trans.header.frame_id = odom;
-    odom_trans.child_frame_id = base_link;
+    odom_trans.child_frame_id = base_footprint;
     odom_trans.transform.translation.x = g_pos_x_cm / 100.0;
     odom_trans.transform.translation.y = g_pos_y_cm / 100.0;
     odom_trans.transform.translation.z = 0.0;

@@ -842,17 +842,21 @@ ARM Macro Assembler    Page 13
               00000400 
               00000000 
 Command Line: --debug --xref --diag_suppress=9931,A1950W --cpu=Cortex-M4.fp.sp 
---depend=rosserial_control\startup_stm32f407xx.d -orosserial_control\startup_st
+--depend=freertos_control_ros\startup_stm32f407xx.d -ofreertos_control_ros\star
 
 
 
 ARM Macro Assembler    Page 14 
 
 
-m32f407xx.o -I.\RTE\_rosserial_control -ID:\Keil_v5\ARM\PACK\ARM\CMSIS\6.1.0\CM
-SIS\Core\Include --predefine="__UVISION_VERSION SETA 540" --predefine="STM32F40
-7xx SETA 1" --predefine="_RTE_ SETA 1" --list=startup_stm32f407xx.lst startup_s
-tm32f407xx.s
+tup_stm32f407xx.o -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Driv
+ers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Middlewares/Third_Party/FreeRTOS/Sourc
+e/include -I../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS -I../Middlewa
+res/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F -I../Drivers/CMSIS/Devic
+e/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -I.\RTE\_freertos_control_ros
+ -ID:\Keil_v5\ARM\PACK\ARM\CMSIS\6.1.0\CMSIS\Core\Include --predefine="__UVISIO
+N_VERSION SETA 540" --predefine="STM32F407xx SETA 1" --predefine="_RTE_ SETA 1"
+ --list=startup_stm32f407xx.lst startup_stm32f407xx.s
 
 
 

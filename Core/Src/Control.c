@@ -147,8 +147,8 @@ void Control_Init(void)
     PID_Init(&pid_position_right, 5.0f, 0.0f, 0.0f, 80.0f, -80.0f);
 		
 		#elif (CONTROL_MODE ==   4)
-		PID_Init(&pid_speed_left, 0.87f, 0.0f, 0.0f, 100.0f, -100.0f);
-    PID_Init(&pid_speed_right, 0.87f, 0.0f, 0.0f, 100.0f, -100.0f); // 右轮也用相同参数
+		PID_Init(&pid_speed_left, 0.9135f, 0.0f, 0.0f, 100.0f, -100.0f);
+    PID_Init(&pid_speed_right, 0.95007f, 0.0f, 0.0f, 100.0f, -100.0f); // 右轮也用相同参数
 
 		
 		#endif
