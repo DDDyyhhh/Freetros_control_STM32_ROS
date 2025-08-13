@@ -25,7 +25,10 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "Encoder.h"   // <<< 新增这一行
+#include "Serial.h"    // <<< 新增这一行
+#include "Control.h" 
+#include "motor.h"     // <<< 顺便把Motor.h也加上，因为你在ControlTask里会用到
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -48,6 +51,11 @@
 
 /* USER CODE END Variables */
 osThreadId defaultTaskHandle;
+osThreadId controlTaskHandle;
+osThreadId visionTaskHandle;
+osThreadId telemetryTaskHandle;
+osMessageQId targetCoordQueueHandle;
+osMutexId telemetryDataMutexHandle;
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -55,6 +63,9 @@ osThreadId defaultTaskHandle;
 /* USER CODE END FunctionPrototypes */
 
 void StartDefaultTask(void const * argument);
+void StartControlTask(void const * argument);
+void StartVisionTask(void const * argument);
+void StartTelemetryTask(void const * argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -95,6 +106,10 @@ void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN Init */
 
   /* USER CODE END Init */
+  /* Create the mutex(es) */
+  /* definition and creation of telemetryDataMutex */
+  osMutexDef(telemetryDataMutex);
+  telemetryDataMutexHandle = osMutexCreate(osMutex(telemetryDataMutex));
 
   /* USER CODE BEGIN RTOS_MUTEX */
   /* add mutexes, ... */
@@ -108,6 +123,11 @@ void MX_FREERTOS_Init(void) {
   /* start timers, add new ones, ... */
   /* USER CODE END RTOS_TIMERS */
 
+  /* Create the queue(s) */
+  /* definition and creation of targetCoordQueue */
+  osMessageQDef(targetCoordQueue, 1, uint32_t);
+  targetCoordQueueHandle = osMessageCreate(osMessageQ(targetCoordQueue), NULL);
+
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
   /* USER CODE END RTOS_QUEUES */
@@ -116,6 +136,18 @@ void MX_FREERTOS_Init(void) {
   /* definition and creation of defaultTask */
   osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 128);
   defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
+
+  /* definition and creation of controlTask */
+  osThreadDef(controlTask, StartControlTask, osPriorityRealtime, 0, 256);
+  controlTaskHandle = osThreadCreate(osThread(controlTask), NULL);
+
+  /* definition and creation of visionTask */
+  osThreadDef(visionTask, StartVisionTask, osPriorityNormal, 0, 256);
+  visionTaskHandle = osThreadCreate(osThread(visionTask), NULL);
+
+  /* definition and creation of telemetryTask */
+  osThreadDef(telemetryTask, StartTelemetryTask, osPriorityLow, 0, 512);
+  telemetryTaskHandle = osThreadCreate(osThread(telemetryTask), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -136,9 +168,76 @@ void StartDefaultTask(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-    osDelay(1);
+    HAL_GPIO_TogglePin(LED0_GPIO_Port, LED0_Pin); // 假设你有LED0在PF9
+    osDelay(500);
   }
   /* USER CODE END StartDefaultTask */
+}
+
+/* USER CODE BEGIN Header_StartControlTask */
+/**
+* @brief Function implementing the controlTask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartControlTask */
+void StartControlTask(void const * argument)
+{
+  /* USER CODE BEGIN StartControlTask */
+  /* Infinite loop */
+  // 使用 TickCount 来实现精确的周期性延时
+  TickType_t xLastWakeTime = xTaskGetTickCount();
+  const TickType_t xFrequency = 10; // 10ms
+
+  for(;;)
+  {
+     // 等待，直到下一个10ms的到来
+    vTaskDelayUntil(&xLastWakeTime, xFrequency);
+
+    // 调用 Control.c 中的PID主循环函数
+    Control_PID_Loop();
+
+  }
+    
+  /* USER CODE END StartControlTask */
+}
+
+/* USER CODE BEGIN Header_StartVisionTask */
+/**
+* @brief Function implementing the visionTask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartVisionTask */
+void StartVisionTask(void const * argument)
+{
+  /* USER CODE BEGIN StartVisionTask */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1000);
+  }
+  /* USER CODE END StartVisionTask */
+}
+
+/* USER CODE BEGIN Header_StartTelemetryTask */
+/**
+* @brief Function implementing the telemetryTask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartTelemetryTask */
+void StartTelemetryTask(void const * argument)
+{
+  /* USER CODE BEGIN StartTelemetryTask */
+  /* Infinite loop */
+
+  for(;;)
+  {
+
+
+  }
+  /* USER CODE END StartTelemetryTask */
 }
 
 /* Private application code --------------------------------------------------*/

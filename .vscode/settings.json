@@ -1,0 +1,9 @@
+{
+    "files.associations": {
+        "motor.h": "c",
+        "serial.h": "c",
+        "freertos.h": "c",
+        "task.h": "c"
+    },
+    "C_Cpp.errorSquiggles": "enabled"
+}
