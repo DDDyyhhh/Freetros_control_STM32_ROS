@@ -21,17 +21,19 @@ Target DLL:      STLink\ST-LINKIII-KEIL_SWO.dll V3.3.0.0
 Dialog DLL:      TCM.DLL V1.56.4.0
  
 <h2>Project:</h2>
-D:\STM32_Project\Freertos_control_ros\MDK-ARM\freertos_control_ros.uvprojx
-Project File Date:  07/08/2025
+D:\STM32_Project\Freertos_control_4WD\MDK-ARM\freertos_control_ros.uvprojx
+Project File Date:  07/10/2025
 
 <h2>Output:</h2>
 *** Using Compiler 'V6.22', folder: 'D:\Keil_v5\ARM\ARMCLANG\Bin'
 Build target 'freertos_control_ros'
-compiling main.c...
 linking...
-Program Size: Code=33808 RO-data=1324 RW-data=4588 ZI-data=72516  
-FromELF: creating hex file...
-"freertos_control_ros\freertos_control_ros.axf" - 0 Error(s), 0 Warning(s).
+freertos_control_ros\freertos_control_ros.axf: Error: L6218E: Undefined symbol Motor_SetSpeed_Right (referred from main.o).
+freertos_control_ros\freertos_control_ros.axf: Error: L6218E: Undefined symbol Motor_SetSpeed_Left (referred from main.o).
+Not enough information to list image symbols.
+Not enough information to list load addresses in the image map.
+Finished: 2 information, 0 warning and 2 error messages.
+"freertos_control_ros\freertos_control_ros.axf" - 2 Error(s), 0 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -54,6 +56,7 @@ Package Vendor: Keil
 
    * Component: ARM::CMSIS:CORE@6.1.0
       Include file:  CMSIS/Core/Include/tz_context.h
+Target not created.
 Build Time Elapsed:  00:00:01
 </pre>
 </body>

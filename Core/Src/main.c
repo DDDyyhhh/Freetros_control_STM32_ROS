@@ -54,17 +54,24 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
+// FreeRTOS 任务句柄和对象句柄通常由 CubeMX 自动生成在 freertos.c 中
+// 我们在这里用 extern 声明它们，以便在其他地方使用
+// extern osThreadId defaultTaskHandle;
+// extern osThreadId controlTaskHandle;
+// extern osThreadId visionTaskHandle;
+// extern osThreadId telemetryTaskHandle;
+// extern osMessageQId targetCoordQueueHandle;
+// extern osMutexId telemetryDataMutexHandle;
 
+
+// 用于在任务间同步当前正在测试的电机编号
+volatile uint8_t g_test_motor_index = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 void MX_FREERTOS_Init(void);
 /* USER CODE BEGIN PFP */
-void Self_Check_Motors();
-//void RosTask(void *argument);
-//void ControlTask(void *argument);
-//void LedTask(void *argument); // 强烈推荐的调试任务
 
 /* USER CODE END PFP */
 
@@ -107,81 +114,18 @@ int main(void)
   MX_TIM2_Init();
   MX_TIM3_Init();
   MX_USART1_UART_Init();
-  MX_TIM6_Init();
   MX_TIM4_Init();
+  MX_TIM1_Init();
+  MX_TIM5_Init();
   /* USER CODE BEGIN 2 */
-	//HAL_UART_Receive_IT(&huart3, &rx_char, 1);
-	Key_Init();
-	Serial_Init(); // <<< 确保调试串口被初始化
-	Motor_Init();
-	Control_Init();
-	setup();
+
+	Serial_Init();      // 初始化调试串口
+  Motor_Init();       // 初始化电机PWM
+  Encoder_Init();     // 初始化编码器接口
+  Control_Init();     // 初始化PID等控制变量
 	
+	Serial_Printf("System Initialized. Starting RTOS Scheduler...\r\n");
 
-	HAL_TIM_Base_Start_IT(&htim6);
-	
-
-
-//   ===【关键】设定一个目标位置 ===
-//   让小车前进 50000 个脉冲的距离
-//   Control_Set_Target_Position_Left(200.0f); // 你需要去 Control.c/h 添加这个函数
-//	 Control_Set_Target_Position_Right(200.0f);
-//	 HAL_Delay(5000);
-//	 Control_Set_Target_Position_Left(1000.0f); // 你需要去 Control.c/h 添加这个函数
-//	 Control_Set_Target_Position_Right(1000.0f);
-	//*******************实验测试轮子编码器值和实际运动的值************************************
-//	while(Key_GetNum() != KEY0_PRES)
-//  {
-//      // 等待...
-//      HAL_Delay(10);
-//  }
-//  
-//  Serial_Printf("Calibration Test Started. Robot will move forward for 5 seconds.\r\n");
-//  HAL_Delay(500); // 延时一下，给你拿开手的时间
-
-//  // 2. 在开始运动前，清零编码器计数
-//  Encoder_Get_Left(); 
-//  Encoder_Get_Right();
-
-//  // 3. 让左右轮以一个较低的、恒定的速度同向转动
-//  int16_t test_pwm = 25; // 使用一个较小的 PWM 值，例如 25%
-//  Motor_SetSpeed_Left(test_pwm);
-//  Motor_SetSpeed_Right(test_pwm); // 确保两个轮子都正转
-//  
-//  // 4. 持续前进 5 秒
-//  HAL_Delay(5000); 
-//  
-//  // 5. 停止电机
-//  Motor_SetSpeed_Left(0);
-//  Motor_SetSpeed_Right(0);
-//  
-//  // 6. 读取这 5 秒内累积的总脉冲数
-//  int32_t total_ticks_left = Encoder_Get_Left();
-//  int32_t total_ticks_right = Encoder_Get_Right();
-//  
-//  // 7. 通过串口打印出最终结果
-//  Serial_Printf("========== Calibration Complete! ==========\r\n");
-//  Serial_Printf("Please measure the distance traveled (in cm).\r\n");
-//  Serial_Printf("Total Ticks Left: %ld\r\n", total_ticks_left);
-//  Serial_Printf("Total Ticks Right: %ld\r\n", total_ticks_right);
-//	
-	
-  // 按键(PE4)未被按下时，HAL_GPIO_ReadPin 返回 GPIO_PIN_SET (高电平)
-//  while(HAL_GPIO_ReadPin(KEY0_GPIO_Port, KEY0_Pin) != GPIO_PIN_RESET)
-//  {
-//    // 让 LED0(PF9) 闪烁，表示正在等待
-//    HAL_GPIO_TogglePin(LED0_GPIO_Port, LED0_Pin);
-//    HAL_Delay(200);
-//  }
-//  
-//  // 按键被按下(低电平)后，跳出循环
-//  // 让 LED0(PF9) 常亮，表示程序已开始运行 (低电平点亮)
-//  HAL_GPIO_WritePin(LED0_GPIO_Port, LED0_Pin, GPIO_PIN_RESET); 
-////	
-//	setup();
-		//uint8_t message[] = "1\r\n"; // 加上换行符
-	
-	 
   /* USER CODE END 2 */
 
   /* Call init function for freertos objects (in cmsis_os2.c) */
@@ -196,22 +140,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-		loop();
-//		HAL_UART_Transmit(&huart3, message, sizeof(message) - 1, 100); // 100ms 超时
-//    HAL_Delay(500); // 每秒发送两次
-//	    uint8_t key = Key_GetNum(); 
-//			if (key == KEY0_PRES)
-//			{
-//					Control_Set_Target_Position_Left(500.0f);
-//					Control_Increase_Target_Speed_Ticks(50.0f); // 目标速度增加 10
-//			}
-//				HAL_Delay(20);
-
-
-//		HAL_GPIO_TogglePin(LED0_GPIO_Port, LED0_Pin);
-//    HAL_Delay(500);
-
-
+		
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -265,72 +194,6 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-//void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
-//  if (huart->Instance == USART3) {
-//    // 如果收到的字符是 'a'
-//    if (rx_char == 'a') {
-//      // 翻转 LED0 (PF9)
-//      HAL_GPIO_TogglePin(LED0_GPIO_Port, LED0_Pin);
-//    }
-//    // 再次启动下一次接收
-//    HAL_UART_Receive_IT(&huart3, &rx_char, 1);
-//  }
-//}
-
-
-
-
-void Self_Check_Motors(void)
-{
-    int16_t test_speed = 30; // 使用一个较低的速度进行测试，例如 30% 占空比
-    uint32_t delay_ms = 1000; // 每个动作持续 1 秒
-
-    // 1. 提示开始自检 (LED 快闪)
-    Serial_Printf("Starting Motor Self-Check...\r\n");
-    for(int i=0; i<5; i++)
-    {
-        HAL_GPIO_TogglePin(LED0_GPIO_Port, LED0_Pin);
-        HAL_Delay(100);
-        HAL_GPIO_TogglePin(LED0_GPIO_Port, LED0_Pin);
-        HAL_Delay(100);
-    }
-    HAL_GPIO_WritePin(LED0_GPIO_Port, LED0_Pin, GPIO_PIN_SET); // 先熄灭 LED
-
-    // 2. 测试右轮正转
-    Serial_Printf("Testing Right Wheel Forward...\r\n");
-    Motor_SetSpeed_Right(test_speed);
-    HAL_Delay(delay_ms);
-    Motor_SetSpeed_Right(0); // 测试完后立即停止
-    HAL_Delay(500); // 短暂延时
-
-    // 3. 测试右轮反转
-    Serial_Printf("Testing Right Wheel Backward...\r\n");
-    Motor_SetSpeed_Right(-test_speed);
-    HAL_Delay(delay_ms);
-    Motor_SetSpeed_Right(0);
-    HAL_Delay(500);
-
-    // 4. 测试左轮正转
-    Serial_Printf("Testing Left Wheel Forward...\r\n");
-    Motor_SetSpeed_Left(test_speed);
-    HAL_Delay(delay_ms);
-    Motor_SetSpeed_Left(0);
-    HAL_Delay(500);
-
-    // 5. 测试左轮反转
-    Serial_Printf("Testing Left Wheel Backward...\r\n");
-    Motor_SetSpeed_Left(-test_speed);
-    HAL_Delay(delay_ms);
-    Motor_SetSpeed_Left(0);
-
-    // 6. 自检结束，LED 常亮 (假设低电平点亮)
-    Serial_Printf("Self-Check Complete!\r\n");
-    HAL_GPIO_WritePin(LED0_GPIO_Port, LED0_Pin, GPIO_PIN_RESET);
-    HAL_Delay(1000); // 延时1秒，让你能看到常亮状态
-}
-
-
-
 
 /* USER CODE END 4 */
 

@@ -57,7 +57,7 @@ void Error_Handler(void);
 extern "C" {
 #endif
 
-
+extern volatile uint8_t g_test_motor_index;
 
 #ifdef __cplusplus
 }
@@ -77,6 +77,14 @@ extern "C" {
 #define AIN1_GPIO_Port GPIOB
 #define AIN2_Pin GPIO_PIN_15
 #define AIN2_GPIO_Port GPIOB
+#define CIN1_Pin GPIO_PIN_8
+#define CIN1_GPIO_Port GPIOD
+#define CIN2_Pin GPIO_PIN_9
+#define CIN2_GPIO_Port GPIOD
+#define DIN1_Pin GPIO_PIN_10
+#define DIN1_GPIO_Port GPIOD
+#define DIN2_Pin GPIO_PIN_11
+#define DIN2_GPIO_Port GPIOD
 
 /* USER CODE BEGIN Private defines */
 
