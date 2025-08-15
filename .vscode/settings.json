@@ -3,7 +3,10 @@
         "motor.h": "c",
         "serial.h": "c",
         "freertos.h": "c",
-        "task.h": "c"
+        "task.h": "c",
+        "pid.h": "c",
+        "math.h": "c",
+        "type_traits": "c"
     },
     "C_Cpp.errorSquiggles": "enabled"
 }

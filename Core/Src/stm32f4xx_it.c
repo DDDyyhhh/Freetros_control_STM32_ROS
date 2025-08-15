@@ -23,6 +23,8 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "mainpp.h" // 包含头文件以获取声明
+#include "vision.h"  // <<< 包含 vision.h
+#include "Serial.h"  // <<< 包含 Serial.h
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -227,17 +229,8 @@ void USART1_IRQHandler(void)
 void USART3_IRQHandler(void)
 {
   /* USER CODE BEGIN USART3_IRQn 0 */
-// 【关键】检查是否是空闲中断
-  if(__HAL_UART_GET_FLAG(&huart3, UART_FLAG_IDLE) != RESET)
-  {
-    __HAL_UART_CLEAR_IDLEFLAG(&huart3); // 清除空闲中断标志位
-    
-    // 调用上层的处理函数 (虽然它现在是空的)
-    
-  }
-  
-  // 调用 HAL 库的通用中断处理函数，它会处理其他标志位（如错误标志）
-  
+
+
   /* USER CODE END USART3_IRQn 0 */
   HAL_UART_IRQHandler(&huart3);
   /* USER CODE BEGIN USART3_IRQn 1 */
@@ -260,5 +253,17 @@ void TIM8_TRG_COM_TIM14_IRQHandler(void)
 }
 
 /* USER CODE BEGIN 1 */
+
+/**
+  * @brief  统一的 HAL UART 接收完成回调函数 (中断分发中心)
+  */
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+    // 调用 Serial 模块的回调处理函数
+    Serial_UART_RxCpltCallback(huart);
+    
+    // 调用 Vision 模块的回调处理函数
+    Vision_UART_RxCpltCallback(huart);
+}
 
 /* USER CODE END 1 */

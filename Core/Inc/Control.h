@@ -18,6 +18,9 @@ typedef struct {
 extern osMessageQId targetCoordQueueHandle;
 extern osMutexId telemetryDataMutexHandle;
 
+// 【新增】用于调试的全局坐标变量
+extern int16_t g_latest_coord_x;
+extern int16_t g_latest_coord_y;
 
 // 函数声明
 

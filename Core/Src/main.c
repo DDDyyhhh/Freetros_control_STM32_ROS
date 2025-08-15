@@ -33,6 +33,7 @@
 #include "Control.h"
 #include "Key.h"
 #include "Encoder.h"
+#include "vision.h" // 包含头文件
 
 /* USER CODE END Includes */
 
@@ -123,7 +124,7 @@ int main(void)
   Motor_Init();       // 初始化电机PWM
   Encoder_Init();     // 初始化编码器接口
   Control_Init();     // 初始化PID等控制变量
-	
+	Vision_Init();
 	Serial_Printf("System Initialized. Starting RTOS Scheduler...\r\n");
 
   /* USER CODE END 2 */

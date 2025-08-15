@@ -160,23 +160,19 @@ uint8_t Serial_GetRxData(void)
   * @note   ??????? HAL ????????,?????????
   *         ? HAL_UART_Receive_IT ?????,?????????
   */
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+void Serial_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
-    // ?????????? USART3 ?????
-    if (huart->Instance == USART1) {
+    if (huart->Instance == USART1) { // <<< 这里是你的调试串口
         Serial_RxFlag = 1;
         HAL_UART_Receive_IT(&huart1, &Serial_RxData, 1);
     }
-//    else if (huart->Instance == USART3) {
-//        rosserial_rx_cb(); // 调用 C 风格接口
-//    }
 }
 
-void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
-{
-    // 判断是哪个串口触发了发送中断
-//    if (huart->Instance == USART3) {
-//        rosserial_tx_cb(); // 调用 C 风格接口
-//    }
-}
+// void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
+// {
+//     // 判断是哪个串口触发了发送中断
+// //    if (huart->Instance == USART3) {
+// //        rosserial_tx_cb(); // 调用 C 风格接口
+// //    }
+// }
 
