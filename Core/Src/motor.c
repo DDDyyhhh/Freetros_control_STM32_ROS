@@ -8,7 +8,7 @@ extern TIM_HandleTypeDef htim1; // 左上轮编码器
 extern TIM_HandleTypeDef htim2; // 右上轮编码器
 extern TIM_HandleTypeDef htim4; // 左下轮编码器
 extern TIM_HandleTypeDef htim5; // 右下轮编码器
-
+#define MOTOR_DEADBAND 6 // 这个值需要实验测定！范围可能是20-50
 
 // ======================= 【硬件引脚宏定义 - 非常重要！】 =======================
 // 在这里将你的物理连接和逻辑编号对应起来
@@ -51,8 +51,8 @@ void Motor_Init(void)
   */
 void Motor_SetSpeed(uint8_t motor_index, int16_t speed)
 {
-    // 假设你的TIM3 ARR值为100，那么速度范围就是 -100 ~ 100
-    const int16_t MAX_PWM = 100; 
+    // 假设你的TIM3 ARR值为100，那么速度范围就是 -1000 ~ 1000
+    const int16_t MAX_PWM = 99; 
 
     // 1. 限幅，防止传入过大的值
     if (speed > MAX_PWM)  speed = MAX_PWM;
@@ -93,6 +93,17 @@ void Motor_SetSpeed(uint8_t motor_index, int16_t speed)
             
         default:
             return; // 无效的电机编号，直接返回
+    }
+
+
+    // 【新增】死区补偿逻辑
+    if (speed > 0 && speed < MOTOR_DEADBAND)
+    {
+        speed = MOTOR_DEADBAND; // 如果想让它动，就给一个最小启动PWM
+    }
+    else if (speed < 0 && speed > -MOTOR_DEADBAND)
+    {
+        speed = -MOTOR_DEADBAND;
     }
 
     // 3. 根据速度正负设置方向引脚电平，并设置PWM占空比

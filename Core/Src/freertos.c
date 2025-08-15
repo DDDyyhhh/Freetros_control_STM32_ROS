@@ -29,6 +29,7 @@
 #include "Serial.h"    // <<< 新增这一行
 #include "Control.h" 
 #include "motor.h"     // <<< 顺便把Motor.h也加上，因为你在ControlTask里会用到
+#include "vision.h" // 包含头文件
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -56,6 +57,7 @@ osThreadId visionTaskHandle;
 osThreadId telemetryTaskHandle;
 osMessageQId targetCoordQueueHandle;
 osMutexId telemetryDataMutexHandle;
+osSemaphoreId visionSemHandle;
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -81,6 +83,13 @@ __weak void vApplicationStackOverflowHook(xTaskHandle xTask, signed char *pcTask
    /* Run time stack overflow checking is performed if
    configCHECK_FOR_STACK_OVERFLOW is defined to 1 or 2. This hook function is
    called if a stack overflow is detected. */
+   Serial_Printf("!!!!!! STACK OVERFLOW in task: %s !!!!!!\r\n", pcTaskName);
+
+    // 在这里可以闪烁一个特定的错误LED灯，或者直接进入死循环
+   while(1)
+   {
+       // 比如让一个错误LED快速闪烁
+   }
 }
 /* USER CODE END 4 */
 
@@ -115,6 +124,11 @@ void MX_FREERTOS_Init(void) {
   /* add mutexes, ... */
   /* USER CODE END RTOS_MUTEX */
 
+  /* Create the semaphores(s) */
+  /* definition and creation of visionSem */
+  osSemaphoreDef(visionSem);
+  visionSemHandle = osSemaphoreCreate(osSemaphore(visionSem), 1);
+
   /* USER CODE BEGIN RTOS_SEMAPHORES */
   /* add semaphores, ... */
   /* USER CODE END RTOS_SEMAPHORES */
@@ -142,7 +156,7 @@ void MX_FREERTOS_Init(void) {
   controlTaskHandle = osThreadCreate(osThread(controlTask), NULL);
 
   /* definition and creation of visionTask */
-  osThreadDef(visionTask, StartVisionTask, osPriorityNormal, 0, 256);
+  osThreadDef(visionTask, StartVisionTask, osPriorityNormal, 0, 512);
   visionTaskHandle = osThreadCreate(osThread(visionTask), NULL);
 
   /* definition and creation of telemetryTask */
@@ -215,7 +229,12 @@ void StartVisionTask(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-    osDelay(1000);
+    if (osSemaphoreWait(visionSemHandle, osWaitForever) == osOK)
+    {
+        // 调用处理函数
+        Vision_ProcessData();
+    }
+  
   }
   /* USER CODE END StartVisionTask */
 }
@@ -234,7 +253,9 @@ void StartTelemetryTask(void const * argument)
 
   for(;;)
   {
-
+     // 调用 Control.c 中的遥测打印函数
+    Control_Telemetry_Loop();
+    osDelay(10);
 
   }
   /* USER CODE END StartTelemetryTask */

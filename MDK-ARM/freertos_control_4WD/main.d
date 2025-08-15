@@ -40,4 +40,4 @@ freertos_control_4wd/main.o: ..\Core\Src\main.c ..\Core\Inc\main.h \
   ..\Core\Inc\dma.h ..\Core\Inc\tim.h ..\Core\Inc\usart.h \
   ..\Core\Inc\gpio.h ..\Core\Inc\mainpp.h ..\Core\Inc\motor.h \
   ..\Core\Inc\pid.h ..\Core\Inc\Serial.h ..\Core\Inc\Control.h \
-  ..\Core\Inc\Key.h ..\Core\Inc\Encoder.h
+  ..\Core\Inc\Key.h ..\Core\Inc\Encoder.h ..\Core\Inc\vision.h

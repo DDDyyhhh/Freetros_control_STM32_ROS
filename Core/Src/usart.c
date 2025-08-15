@@ -180,7 +180,11 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     HAL_NVIC_SetPriority(USART3_IRQn, 5, 0);
     HAL_NVIC_EnableIRQ(USART3_IRQn);
   /* USER CODE BEGIN USART3_MspInit 1 */
-
+  // ==================== 【在这里手动覆盖优先级】 ====================
+  // CubeMX会在上面生成默认的优先级(5,0)，我们在这里用我们想要的值(7,0)覆盖它。
+  // 因为这行代码在 USER CODE 区内，所以它永远不会被CubeMX重新生成代码时删除。
+  HAL_NVIC_SetPriority(USART3_IRQn, 7, 0);
+  // ================================================================
   /* USER CODE END USART3_MspInit 1 */
   }
 }

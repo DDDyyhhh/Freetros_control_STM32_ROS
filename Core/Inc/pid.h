@@ -21,6 +21,9 @@ typedef struct {
 
 	float OutMax;     // 输出限幅最大值
 	float OutMin;     // 输出限幅最小值
+
+	// 【新增】积分分离阈值
+    float IntegralSeparationThreshold;
 } PID_t;
 
 // 函数声明
